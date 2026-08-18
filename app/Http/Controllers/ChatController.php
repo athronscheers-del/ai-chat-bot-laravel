@@ -16,7 +16,7 @@ class ChatController extends Controller
     public function send(Request $request)
     {
         $request->validate([
-            'message' => 'required|string',
+            'message' => 'required|string|max:2000',
         ]);
 
         $user = User::firstOrCreate(
@@ -26,15 +26,23 @@ class ChatController extends Controller
 
         $conversationId = session('conversation_id');
 
-        if ($conversationId) {
-            $response = (new ChatBot)->continue($conversationId, as: $user)
-                ->prompt($request->message);
-        } else {
-            $response = (new ChatBot)->forUser($user)
-                ->prompt($request->message);
-            session(['conversation_id' => $response->conversationId]);
-        }
+        try {
+            if ($conversationId) {
+                $response = (new ChatBot)->continue($conversationId, as: $user)
+                    ->prompt($request->message);
+            } else {
+                $response = (new ChatBot)->forUser($user)
+                    ->prompt($request->message);
+                session(['conversation_id' => $response->conversationId]);
+            }
 
-        return response()->json(['reply' => $response->text]);
+            return response()->json(['reply' => $response->text]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'reply' => "Sorry, I'm having trouble responding right now. Please try again in a moment.",
+            ], 500);
+        }
     }
 }
