@@ -99,10 +99,11 @@ return [
         ],
 
         'gemini' => [
-            'driver' => 'gemini',
-            'key' => env('GEMINI_API_KEY'),
-            'url' => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/'),
-        ],
+    'driver' => 'gemini',
+    'key' => env('GEMINI_API_KEY'),
+    'url' => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/'),
+    'timeout' => 60,
+],
 
         'groq' => [
             'driver' => 'groq',
